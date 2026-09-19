@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Transcribe</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #06101f;
+      color: #e8eef7;
+    }
+
+    .app {
+      min-height: 100vh;
+      background: #06101f;
+    }
+
+    .header {
+      height: 90px;
+      padding: 0 48px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      background: #071426;
+      border-bottom: 1px solid #183252;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+
+      color: #14a9ed;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 2px solid #14a9ed;
+      border-radius: 50%;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      color: #8fa8c7;
+      font-size: 18px;
+    }
+
+    .status-dot {
+      width: 14px;
+      height: 14px;
+
+      border-radius: 50%;
+      background: #6b88a9;
+    }
+
+    .main {
+      max-width: 1450px;
+      margin: auto;
+      padding: 24px 44px 35px;
+    }
+
+    .control-card {
+      padding: 28px 24px 20px;
+
+      text-align: center;
+
+      background: #081629;
+
+      border: 1px solid #1b3a5f;
+      border-radius: 12px;
+    }
+
+    .control-card h1 {
+      margin: 0;
+
+      font-size: 38px;
+      color: #f1f5fb;
+    }
+
+    .control-card p {
+      margin: 10px 0 28px;
+
+      font-size: 18px;
+      color: #8fa8c7;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    button {
+      min-width: 300px;
+
+      padding: 17px 28px;
+
+      border: none;
+      border-radius: 9px;
+
+      font-size: 18px;
+      font-weight: 600;
+
+      cursor: pointer;
+    }
+
+    #startButton {
+      background: #12a8ef;
+      color: white;
+    }
+
+    #stopButton {
+      background: #1b2d46;
+      color: #91a7c2;
+
+      border: 1px solid #294564;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .transcript-card {
+      margin-top: 22px;
+
+      background: #081629;
+
+      border: 1px solid #1b3a5f;
+      border-radius: 12px;
+
+      overflow: hidden;
+    }
+
+    .transcript-header {
+      min-height: 82px;
+
+      padding: 0 32px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      border-bottom: 1px solid #1b3a5f;
+    }
+
+    .transcript-header h2 {
+      margin: 0;
+
+      font-size: 27px;
+    }
+
+    .chunk-count {
+      color: #8fa8c7;
+      font-size: 18px;
+    }
+
+    .transcript {
+      min-height: 330px;
+      max-height: 500px;
+
+      overflow-y: auto;
+
+      padding: 22px 24px;
+
+      background: #071426;
+    }
+
+    .transcript-empty {
+      height: 280px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: #8fa8c7;
+
+      font-size: 18px;
+    }
+
+    .transcript-item {
+      padding: 17px 19px;
+      margin-bottom: 12px;
+
+      background: #0d2037;
+
+      border: 1px solid #1a395a;
+      border-radius: 9px;
+    }
+
+    .transcript-meta {
+      margin-bottom: 7px;
+
+      color: #6482a5;
+      font-size: 13px;
+    }
+
+    .transcript-text {
+      color: #e4edf8;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      padding: 20px;
+
+      text-align: center;
+
+      color: #6482a5;
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+
+      <div class="logo">
+        <div class="logo-icon">
+          🎙
+        </div>
+
+        <span>Transcribe</span>
+      </div>
+
+      <div class="status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="status">Ready</span>
+      </div>
+
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <!-- START / STOP CARD -->
+      <section class="control-card">
+
+        <h1>Audio Transcription</h1>
+
+        <p>
+          Record your microphone and convert speech into text.
+        </p>
+
+        <div class="controls">
+
+          <button id="startButton">
+            Start Recording
+          </button>
+
+          <button id="stopButton" disabled>
+            Stop Recording
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- TRANSCRIPT CARD -->
+      <section class="transcript-card">
+
+        <div class="transcript-header">
+
+          <h2>Transcript</h2>
+
+          <span
+            class="chunk-count"
+            id="chunkCount">
+            0 chunks
+          </span>
+
+        </div>
+
+
+        <div
+          class="transcript"
+          id="transcript">
+
+          <div
+            class="transcript-empty"
+            id="transcriptEmpty">
+
+            Start recording to see your transcript here.
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      Rust Audio Transcription Pipeline
+    </footer>
+
+  </div>
+
+</body>
+</html>
